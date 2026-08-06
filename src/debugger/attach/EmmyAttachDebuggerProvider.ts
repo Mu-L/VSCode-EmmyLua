@@ -26,7 +26,7 @@ export class EmmyAttachDebuggerProvider extends DebuggerProvider {
         configuration.sourcePaths = this.getSourceRoots();
         configuration.request = "attach";
         configuration.type = "emmylua_attach";
-        configuration.ext = this.getExt();
+        configuration.ext = configuration.ext ?? this.getExt();
         configuration.processName = configuration.processName ?? ""
         if (configuration.pid > 0) {
             return configuration;
