@@ -18,7 +18,7 @@ export class EmmyLaunchDebuggerProvider extends DebuggerProvider {
         const resolvedWorkingDir = this.resolveWorkingDirectory(folder, configuration.workingDir, resolvedProgram);
 
         if (this.isNullOrEmpty(resolvedProgram)) {
-            vscode.window.showErrorMessage('EmmyLua launch debug requires a Lua entry file. Open a Lua file or set the program field in launch.json.');
+            vscode.window.showErrorMessage(vscode.l10n.t('EmmyLua launch debug requires a Lua entry file. Open a Lua file or set the program field in launch.json.'));
             return undefined;
         }
 

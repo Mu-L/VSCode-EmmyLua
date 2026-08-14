@@ -137,7 +137,7 @@ export class LuaRocksManager {
      */
     async searchPackages(query: string): Promise<LuaPackage[]> {
         // 使用临时状态栏消息显示进度（不再使用常驻的状态栏图标）
-        const status = vscode.window.setStatusBarMessage('$(sync~spin) LuaRocks: Searching packages...');
+        const status = vscode.window.setStatusBarMessage(vscode.l10n.t('$(sync~spin) LuaRocks: Searching packages...'));
         try {
             const command = this.buildLuaRocksCommand([
                 'search',
@@ -152,7 +152,7 @@ export class LuaRocksManager {
 
             return packages;
         } catch (error) {
-            this.showError('Failed to search packages', error);
+            this.showError(vscode.l10n.t('Failed to search packages'), error);
             return [];
         } finally {
             status.dispose();
@@ -179,7 +179,7 @@ export class LuaRocksManager {
             this.installedPackagesCache = this.parseInstalledPackages(stdout);
             return this.installedPackagesCache;
         } catch (error) {
-            this.showError('Failed to get installed packages', error);
+            this.showError(vscode.l10n.t('Failed to get installed packages'), error);
             return [];
         }
     }
@@ -189,12 +189,12 @@ export class LuaRocksManager {
      */
     async installPackage(packageName: string, version?: string): Promise<boolean> {
         if (this.isInstalling) {
-            vscode.window.showWarningMessage('Installation already in progress');
+            vscode.window.showWarningMessage(vscode.l10n.t('Installation already in progress'));
             return false;
         }
 
         // 使用临时状态栏消息显示进度
-        const status = vscode.window.setStatusBarMessage('$(sync~spin) LuaRocks: Installing...');
+        const status = vscode.window.setStatusBarMessage(vscode.l10n.t('$(sync~spin) LuaRocks: Installing...'));
         try {
             this.isInstalling = true;
 
@@ -206,7 +206,7 @@ export class LuaRocksManager {
             const command = this.buildLuaRocksCommand(installArgs);
 
             this.outputChannel.show();
-            this.outputChannel.appendLine(`Installing: ${command}`);
+            this.outputChannel.appendLine(`${vscode.l10n.t('Installing:')} ${command}`);
 
             const { stdout, stderr } = await exec(command, {
                 cwd: this.workspaceFolder.uri.fsPath,
@@ -219,10 +219,10 @@ export class LuaRocksManager {
             // 清除缓存
             this.installedPackagesCache = [];
 
-            vscode.window.showInformationMessage(`Successfully installed ${packageName}`);
+            vscode.window.showInformationMessage(vscode.l10n.t('Successfully installed {0}', packageName));
             return true;
         } catch (error) {
-            this.showError(`Failed to install ${packageName}`, error);
+            this.showError(vscode.l10n.t('Failed to install {0}', packageName), error);
             return false;
         } finally {
             this.isInstalling = false;
@@ -235,7 +235,7 @@ export class LuaRocksManager {
      */
     async uninstallPackage(packageName: string): Promise<boolean> {
         // 使用临时状态栏消息显示进度
-        const status = vscode.window.setStatusBarMessage('$(sync~spin) LuaRocks: Uninstalling...');
+        const status = vscode.window.setStatusBarMessage(vscode.l10n.t('$(sync~spin) LuaRocks: Uninstalling...'));
         try {
             const command = this.buildLuaRocksCommand([
                 'remove',
@@ -243,7 +243,7 @@ export class LuaRocksManager {
             ]);
 
             this.outputChannel.show();
-            this.outputChannel.appendLine(`Uninstalling: ${command}`);
+            this.outputChannel.appendLine(`${vscode.l10n.t('Uninstalling:')} ${command}`);
 
             const { stdout, stderr } = await exec(command, {
                 cwd: this.workspaceFolder.uri.fsPath,
@@ -256,10 +256,10 @@ export class LuaRocksManager {
             // 清除缓存
             this.installedPackagesCache = [];
 
-            vscode.window.showInformationMessage(`Successfully uninstalled ${packageName}`);
+            vscode.window.showInformationMessage(vscode.l10n.t('Successfully uninstalled {0}', packageName));
             return true;
         } catch (error) {
-            this.showError(`Failed to uninstall ${packageName}`, error);
+            this.showError(vscode.l10n.t('Failed to uninstall {0}', packageName), error);
             return false;
         } finally {
             status.dispose();
@@ -286,7 +286,7 @@ export class LuaRocksManager {
                 const searchResults = await this.searchPackages(packageName);
                 return searchResults.find(pkg => pkg.name === packageName) || null;
             } catch {
-                this.showError(`Failed to get package info for ${packageName}`, error);
+                this.showError(vscode.l10n.t('Failed to get package info for {0}', packageName), error);
                 return null;
             }
         }

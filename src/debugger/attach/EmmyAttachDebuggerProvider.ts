@@ -18,7 +18,7 @@ export interface EmmyAttachDebugConfiguration extends DebugConfigurationBase {
 export class EmmyAttachDebuggerProvider extends DebuggerProvider {
     async resolveDebugConfiguration(folder: vscode.WorkspaceFolder | undefined, configuration: EmmyAttachDebugConfiguration, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration | undefined> {
         if (process.platform !== 'win32') {
-            vscode.window.showErrorMessage('EmmyLua attach debug currently supports Windows only.');
+            vscode.window.showErrorMessage(vscode.l10n.t('EmmyLua attach debug currently supports Windows only.'));
             return undefined;
         }
 
@@ -66,7 +66,7 @@ export class EmmyAttachDebuggerProvider extends DebuggerProvider {
                     vscode.window.showQuickPick(items, {
                         matchOnDescription: true,
                         matchOnDetail: true,
-                        placeHolder: "Select the process to attach"
+                        placeHolder: vscode.l10n.t('Select the process to attach')
                     }).then((item: ProcessInfoItem | undefined) => {
                         if (item) {
                             resolve(item.pid);
@@ -77,7 +77,7 @@ export class EmmyAttachDebuggerProvider extends DebuggerProvider {
                 } else if (items.length == 1) {
                     resolve(items[0].pid);
                 } else {
-                    vscode.window.showErrorMessage("No process for attach")
+                    vscode.window.showErrorMessage(vscode.l10n.t('No process for attach'))
                     reject();
                 }
 

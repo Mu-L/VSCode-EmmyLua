@@ -46,7 +46,7 @@ export class EmmyNewDebuggerProvider extends DebuggerProvider {
     private async showWaitConnection(session: vscode.DebugSession, token: vscode.CancellationToken) {
         return vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: 'Wait for connection.',
+                title: vscode.l10n.t('Wait for connection.'),
                 cancellable: true
             },
             async (progress, userCancelToken) => {

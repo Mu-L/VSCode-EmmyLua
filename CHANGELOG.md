@@ -2,6 +2,27 @@
 
 [中文Log](CHANGELOG_CN.md)
 
+## [0.9.41] - 2026-8-14
+
+### Added
+
+- **emmylua_doc_cli support export html**: Added support for exporting documentation in HTML format. For example, the `neovim/runtime/lua` directory was exported as an HTML document, see: https://cppcxy.github.io/nvim_runtime_lua_doc/
+
+### Changed
+
+- **Remove LuaJIT-Ext**: Now LuaJIT-Ext is merged into LuaJIT, the old LuaJIT syntax is renamed to LuaJIT2.
+- **Remove @schema**: Removed support for the `@schema` annotation, which was used to add completion and hover for json-schema-defined APIs. The main reason for removing it is to drop the dependency on the reqwest library — it takes up a lot of compilation time.
+- **Enhance luafmt check feature**: `luafmt --check` now outputs git-diff-like differences and reports a check summary.
+
+### Fixed
+
+- **Fix some formatting edge cases**: Fixed some formatting edge cases, including:
+  1. Format would remove `safe-navigation` expressions.
+  2. Format would remove `...` in param annotations.
+  3. Fix compound assignment alignment formatting.
+- **Fix some stuck loading issue**: Fixed some issues that caused the language server to hang while loading a workspace, and improved the loading performance of large workspaces.
+- **Fix math.randomseed**: Fixed an issue where `math.randomseed` was not enable for all version
+
 ## [0.9.40] - 2026-7-10
 
 ### ✨ Added

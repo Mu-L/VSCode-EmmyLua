@@ -2,7 +2,7 @@
     "name": "emmylua",
     "displayName": "EmmyLua",
     "description": "EmmyLua for vscode",
-    "version": "0.9.40",
+    "version": "0.9.41",
     "icon": "res/icon.png",
     "publisher": "tangzx",
     "engines": {
@@ -28,6 +28,7 @@
         "url": "https://github.com/EmmyLua/VSCode-EmmyLua/issues"
     },
     "main": "./out/extension",
+    "l10n": "./l10n",
     "extensionKind": [
         "workspace"
     ],
@@ -1155,6 +1156,9 @@
                     "keyword.readonly": [
                         "constant.language.lua"
                     ],
+                    "keyword.operator.logical": [
+                        "keyword.operator.logical.lua"
+                    ],
                     "macro": [
                         "variable.lua"
                     ],
@@ -1240,12 +1244,14 @@
         "build:mcp": "node node_modules/esbuild/bin/esbuild src/mcp/server.ts --bundle --outfile=out/mcp/server.js --platform=node --external:vscode --external:http --external:crypto --external:path --format=cjs",
         "watch": "tsc -watch -p ./",
         "test": "npm run compile && node ./node_modules/vscode/bin/test",
+        "l10n:export": "vscode-l10n-dev export --outDir ./l10n ./src",
         "release": "node --disable-warning=ExperimentalWarning ./build/release.js"
     },
     "devDependencies": {
         "@types/mocha": "^9.1.0",
         "@types/node": "^17.0.21",
         "@types/vscode": "1.89.0",
+        "@vscode/l10n-dev": "^0.0.35",
         "@vscode/vsce": "2.26.1",
         "decompress": "^4.2.1",
         "decompress-targz": "4.1.1",

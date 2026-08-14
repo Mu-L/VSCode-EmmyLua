@@ -47,6 +47,10 @@ interface TooltipAction {
     readonly tooltip?: string;
 }
 
+interface ServerMenuItem extends vscode.QuickPickItem {
+    readonly action: 'restart' | 'stop' | 'start' | 'info' | 'diagnostics' | 'output' | 'syntaxTree';
+}
+
 /**
  * EmmyLua extension context manager
  * Manages language client, status bar, and extension state
@@ -129,7 +133,7 @@ export class EmmyContext implements vscode.Disposable {
     setServerStarting(message?: string): void {
         this._serverStatus = {
             state: ServerState.Starting,
-            message: message || 'Starting EmmyLua language server...',
+            message: message || vscode.l10n.t('Starting EmmyLua language server...'),
         };
         this.updateStatusBar();
     }
@@ -140,7 +144,7 @@ export class EmmyContext implements vscode.Disposable {
     setServerRunning(message?: string): void {
         this._serverStatus = {
             state: ServerState.Running,
-            message: message || 'EmmyLua language server is running',
+            message: message || vscode.l10n.t('EmmyLua language server is running'),
         };
         this.updateStatusBar();
     }
@@ -151,7 +155,7 @@ export class EmmyContext implements vscode.Disposable {
     setServerStopping(message?: string): void {
         this._serverStatus = {
             state: ServerState.Stopping,
-            message: message || 'Stopping EmmyLua language server...',
+            message: message || vscode.l10n.t('Stopping EmmyLua language server...'),
         };
         this.updateStatusBar();
     }
@@ -162,7 +166,7 @@ export class EmmyContext implements vscode.Disposable {
     setServerStopped(message?: string): void {
         this._serverStatus = {
             state: ServerState.Stopped,
-            message: message || 'EmmyLua language server is stopped',
+            message: message || vscode.l10n.t('EmmyLua language server is stopped'),
         };
         this.updateStatusBar();
     }
@@ -212,56 +216,63 @@ export class EmmyContext implements vscode.Disposable {
      * Show server control menu
      */
     async showServerMenu(): Promise<void> {
-        const items: vscode.QuickPickItem[] = [];
+        const items: ServerMenuItem[] = [];
 
         // Build menu based on current state
         if (this.isServerRunning) {
             items.push(
                 {
-                    label: '$(debug-restart) Restart Server',
-                    description: 'Restart the language server',
-                    detail: 'Stop and restart the EmmyLua language server',
+                    action: 'restart',
+                    label: '$(debug-restart) ' + vscode.l10n.t('Restart Server'),
+                    description: vscode.l10n.t('Restart the language server'),
+                    detail: vscode.l10n.t('Stop and restart the EmmyLua language server'),
                 },
                 {
-                    label: '$(stop-circle) Stop Server',
-                    description: 'Stop the language server',
-                    detail: 'Gracefully stop the EmmyLua language server',
+                    action: 'stop',
+                    label: '$(stop-circle) ' + vscode.l10n.t('Stop Server'),
+                    description: vscode.l10n.t('Stop the language server'),
+                    detail: vscode.l10n.t('Gracefully stop the EmmyLua language server'),
                 }
             );
         } else {
             items.push({
-                label: '$(play) Start Server',
-                description: 'Start the language server',
-                detail: 'Start the EmmyLua language server',
+                action: 'start',
+                label: '$(play) ' + vscode.l10n.t('Start Server'),
+                description: vscode.l10n.t('Start the language server'),
+                detail: vscode.l10n.t('Start the EmmyLua language server'),
             });
         }
 
         items.push(
             {
-                label: '$(info) Show Server Info',
-                description: 'Display server information',
-                detail: 'Show detailed server status and configuration',
+                action: 'info',
+                label: '$(info) ' + vscode.l10n.t('Show Server Info'),
+                description: vscode.l10n.t('Display server information'),
+                detail: vscode.l10n.t('Show detailed server status and configuration'),
             },
             {
-                label: '$(heart-pulse) Open Diagnostics',
-                description: 'Open a diagnostics report',
-                detail: 'Show runtime status, configuration scope, and server executable details',
+                action: 'diagnostics',
+                label: '$(heart-pulse) ' + vscode.l10n.t('Open Diagnostics'),
+                description: vscode.l10n.t('Open a diagnostics report'),
+                detail: vscode.l10n.t('Show runtime status, configuration scope, and server executable details'),
             },
             {
-                label: '$(output) Show Output',
-                description: 'Open output channel',
-                detail: 'View server logs and output',
+                action: 'output',
+                label: '$(output) ' + vscode.l10n.t('Show Output'),
+                description: vscode.l10n.t('Open output channel'),
+                detail: vscode.l10n.t('View server logs and output'),
             },
             {
-                label: '$(symbol-structure) Show Syntax Tree',
-                description: 'View syntax tree for current file',
-                detail: 'Display the syntax tree of the active Lua file',
+                action: 'syntaxTree',
+                label: '$(symbol-structure) ' + vscode.l10n.t('Show Syntax Tree'),
+                description: vscode.l10n.t('View syntax tree for current file'),
+                detail: vscode.l10n.t('Display the syntax tree of the active Lua file'),
             }
         );
 
         const selected = await vscode.window.showQuickPick(items, {
-            placeHolder: 'EmmyLua Language Server',
-            title: 'Server Control',
+            placeHolder: vscode.l10n.t('EmmyLua Language Server'),
+            title: vscode.l10n.t('Server Control'),
         });
 
         if (!selected) {
@@ -269,20 +280,28 @@ export class EmmyContext implements vscode.Disposable {
         }
 
         // Execute selected action
-        if (selected.label.includes('Restart')) {
-            await vscode.commands.executeCommand('emmy.restartServer');
-        } else if (selected.label.includes('Stop')) {
-            await vscode.commands.executeCommand('emmy.stopServer');
-        } else if (selected.label.includes('Start')) {
-            await vscode.commands.executeCommand('emmy.startServer');
-        } else if (selected.label.includes('Server Info')) {
-            this.showServerInfo();
-        } else if (selected.label.includes('Diagnostics')) {
-            await vscode.commands.executeCommand('emmy.showServerDiagnostics');
-        } else if (selected.label.includes('Output')) {
-            this._client?.outputChannel?.show();
-        } else if (selected.label.includes('Syntax Tree')) {
-            await vscode.commands.executeCommand('emmy.showSyntaxTree');
+        switch (selected.action) {
+            case 'restart':
+                await vscode.commands.executeCommand('emmy.restartServer');
+                break;
+            case 'stop':
+                await vscode.commands.executeCommand('emmy.stopServer');
+                break;
+            case 'start':
+                await vscode.commands.executeCommand('emmy.startServer');
+                break;
+            case 'info':
+                this.showServerInfo();
+                break;
+            case 'diagnostics':
+                await vscode.commands.executeCommand('emmy.showServerDiagnostics');
+                break;
+            case 'output':
+                this._client?.outputChannel?.show();
+                break;
+            case 'syntaxTree':
+                await vscode.commands.executeCommand('emmy.showSyntaxTree');
+                break;
         }
     }
 
@@ -293,7 +312,7 @@ export class EmmyContext implements vscode.Disposable {
         const info: string[] = [
             '# EmmyLua Language Server',
             '',
-            `**Status:** ${this._serverStatus.state}`,
+            `**${vscode.l10n.t('Status:')}** ${this._serverStatus.state}`,
         ];
 
         if (this._serverStatus.message) {
@@ -345,12 +364,12 @@ export class EmmyContext implements vscode.Disposable {
 
     private getLanguageStatusText(): string {
         const textByState: Record<ServerState, string> = {
-            [ServerState.Starting]: 'EmmyLua: starting server',
-            [ServerState.Running]: 'EmmyLua: server running',
-            [ServerState.Stopping]: 'EmmyLua: stopping server',
-            [ServerState.Stopped]: 'EmmyLua: server stopped',
-            [ServerState.Warning]: 'EmmyLua: server warning',
-            [ServerState.Error]: 'EmmyLua: server error',
+            [ServerState.Starting]: vscode.l10n.t('EmmyLua: starting server'),
+            [ServerState.Running]: vscode.l10n.t('EmmyLua: server running'),
+            [ServerState.Stopping]: vscode.l10n.t('EmmyLua: stopping server'),
+            [ServerState.Stopped]: vscode.l10n.t('EmmyLua: server stopped'),
+            [ServerState.Warning]: vscode.l10n.t('EmmyLua: server warning'),
+            [ServerState.Error]: vscode.l10n.t('EmmyLua: server error'),
         };
 
         return textByState[this._serverStatus.state];
@@ -361,7 +380,7 @@ export class EmmyContext implements vscode.Disposable {
             .filter((part): part is string => Boolean(part?.trim()))
             .map((part) => part.trim());
 
-        return detailParts.join('\n\n') || 'Open server control for details and actions.';
+        return detailParts.join('\n\n') || vscode.l10n.t('Open server control for details and actions.');
     }
 
     private getLanguageStatusSeverity(): vscode.LanguageStatusSeverity {
@@ -416,11 +435,11 @@ export class EmmyContext implements vscode.Disposable {
         tooltip.isTrusted = true;
 
         // Title
-        tooltip.appendMarkdown('**EmmyLua Language Server**\n\n');
+        tooltip.appendMarkdown(`**${vscode.l10n.t('EmmyLua Language Server')}**\n\n`);
         tooltip.appendMarkdown('---\n\n');
 
         // Status
-        tooltip.appendMarkdown(`Status: \`${this._serverStatus.state}\`\n\n`);
+        tooltip.appendMarkdown(`${vscode.l10n.t('Status:')} \`${this._serverStatus.state}\`\n\n`);
 
         const actions = this.getTooltipActions();
         if (actions.length) {
@@ -446,18 +465,18 @@ export class EmmyContext implements vscode.Disposable {
 
         if (state !== ServerState.Stopped && state !== ServerState.Stopping) {
             actions.push({
-                label: 'Stop server',
+                label: vscode.l10n.t('Stop server'),
                 command: 'emmy.stopServer',
                 icon: '$(stop-circle)',
-                tooltip: 'Stop the EmmyLua language server',
+                tooltip: vscode.l10n.t('Stop the EmmyLua language server'),
             });
         }
 
         actions.push({
-            label: 'Restart server',
+            label: vscode.l10n.t('Restart server'),
             command: 'emmy.restartServer',
             icon: '$(debug-restart)',
-            tooltip: 'Restart the EmmyLua language server',
+            tooltip: vscode.l10n.t('Restart the EmmyLua language server'),
         });
         return actions;
     }

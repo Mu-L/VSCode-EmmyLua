@@ -49,14 +49,14 @@ export class LuaRocksTreeProvider implements vscode.TreeDataProvider<PackageTree
             // Root level
             if (this.isSearchMode) {
                 return [
-                    new PackageTreeItem('Search Results', vscode.TreeItemCollapsibleState.Expanded, 'category', undefined, this.searchResults.length, 'searchResults')
+                    new PackageTreeItem(vscode.l10n.t('Search Results'), vscode.TreeItemCollapsibleState.Expanded, 'category', undefined, this.searchResults.length, 'searchResults')
                 ];
             } else {
                 await this.ensureRockspecLoaded(false);
                 return [
-                    new PackageTreeItem('Dependencies', vscode.TreeItemCollapsibleState.Expanded, 'category', undefined, this.rockspecDependencies.length, 'rockspecDependencies'),
-                    new PackageTreeItem('Installed', vscode.TreeItemCollapsibleState.Collapsed, 'category', undefined, this.installedPackages.length, 'installed'),
-                    new PackageTreeItem('Search Packages', vscode.TreeItemCollapsibleState.None, 'search')
+                    new PackageTreeItem(vscode.l10n.t('Dependencies'), vscode.TreeItemCollapsibleState.Expanded, 'category', undefined, this.rockspecDependencies.length, 'rockspecDependencies'),
+                    new PackageTreeItem(vscode.l10n.t('Installed'), vscode.TreeItemCollapsibleState.Collapsed, 'category', undefined, this.installedPackages.length, 'installed'),
+                    new PackageTreeItem(vscode.l10n.t('Search Packages'), vscode.TreeItemCollapsibleState.None, 'search')
                 ];
             }
         }
@@ -138,7 +138,7 @@ export class LuaRocksTreeProvider implements vscode.TreeDataProvider<PackageTree
                     version: installed?.version || 'latest',
                     installed: Boolean(installed),
                     location: installed?.location,
-                    summary: `Required: ${requirement}`
+                    summary: vscode.l10n.t('Required: {0}', requirement)
                 };
 
                 return { packageInfo, requirement };
@@ -223,7 +223,7 @@ export class PackageTreeItem extends vscode.TreeItem {
                 this.iconPath = new vscode.ThemeIcon('search');
                 this.command = {
                     command: 'emmylua.luarocks.searchPackages',
-                    title: 'Search Packages'
+                    title: vscode.l10n.t('Search Packages')
                 };
                 this.contextValue = 'search';
                 break;
@@ -245,19 +245,19 @@ export class PackageTreeItem extends vscode.TreeItem {
         }
 
         if (this.packageInfo.author) {
-            lines.push(`**Author:** ${this.packageInfo.author}`);
+            lines.push(vscode.l10n.t('**Author:** {0}', this.packageInfo.author));
         }
 
         if (this.packageInfo.license) {
-            lines.push(`**License:** ${this.packageInfo.license}`);
+            lines.push(vscode.l10n.t('**License:** {0}', this.packageInfo.license));
         }
 
         if (this.packageInfo.homepage) {
-            lines.push(`**Homepage:** ${this.packageInfo.homepage}`);
+            lines.push(vscode.l10n.t('**Homepage:** {0}', this.packageInfo.homepage));
         }
 
         if (this.packageInfo.location && this.packageInfo.installed) {
-            lines.push(`**Location:** ${this.packageInfo.location}`);
+            lines.push(vscode.l10n.t('**Location:** {0}', this.packageInfo.location));
         }
 
         return lines.join('\n');

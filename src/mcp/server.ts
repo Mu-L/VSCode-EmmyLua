@@ -137,9 +137,9 @@ export async function startMcpServer(): Promise<void> {
     try {
         const { server: httpSrv, port: actualPort } = await tryListen(host, port, 10);
         httpServer = httpSrv;
-        log(`MCP server started at http://${host}:${actualPort}/mcp (Streamable HTTP) and /sse (SSE)`);
+        log(vscode.l10n.t('MCP server started at http://{0}:{1}/mcp (Streamable HTTP) and /sse (SSE)', host, actualPort));
     } catch (e: any) {
-        log(`Failed to start: ${e.message}`);
+        log(vscode.l10n.t('Failed to start: {0}', e.message));
     }
 }
 

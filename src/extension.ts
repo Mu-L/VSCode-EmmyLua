@@ -183,20 +183,20 @@ async function startServer(): Promise<void> {
     } catch (reason) {
         const errorMessage = reason instanceof Error ? reason.message : String(reason);
         extensionContext.setServerError(
-            'Failed to start EmmyLua language server',
+            vscode.l10n.t('Failed to start EmmyLua language server'),
             errorMessage
         );
         vscode.window.showErrorMessage(
-            `Failed to start EmmyLua language server: ${errorMessage}`,
-            'Retry',
-            'Diagnostics',
-            'Show Logs'
+            vscode.l10n.t('Failed to start EmmyLua language server: {0}', errorMessage),
+            vscode.l10n.t('Retry'),
+            vscode.l10n.t('Diagnostics'),
+            vscode.l10n.t('Show Logs')
         ).then(action => {
-            if (action === 'Retry') {
+            if (action === vscode.l10n.t('Retry')) {
                 restartServer();
-            } else if (action === 'Diagnostics') {
+            } else if (action === vscode.l10n.t('Diagnostics')) {
                 showServerDiagnostics();
-            } else if (action === 'Show Logs') {
+            } else if (action === vscode.l10n.t('Show Logs')) {
                 extensionContext.client?.outputChannel?.show();
             }
         });
@@ -323,7 +323,7 @@ async function restartServer(): Promise<void> {
     if (!client) {
         await startServer();
     } else {
-        extensionContext.setServerStopping('Restarting server...');
+        extensionContext.setServerStopping(vscode.l10n.t('Restarting server...'));
         try {
             if (client.isRunning()) {
                 await client.stop();
@@ -331,8 +331,8 @@ async function restartServer(): Promise<void> {
             await startServer();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            extensionContext.setServerError('Failed to restart server', errorMessage);
-            vscode.window.showErrorMessage(`Failed to restart server: ${errorMessage}`);
+            extensionContext.setServerError(vscode.l10n.t('Failed to restart server'), errorMessage);
+            vscode.window.showErrorMessage(vscode.l10n.t('Failed to restart server: {0}', errorMessage));
         }
     }
 }
@@ -350,40 +350,45 @@ async function showServerDiagnostics(): Promise<void> {
         : undefined;
     const workspaceFolders = vscode.workspace.workspaceFolders ?? [];
 
+    const yes = vscode.l10n.t('yes');
+    const no = vscode.l10n.t('no');
+    const none = vscode.l10n.t('none');
+    const disabled = vscode.l10n.t('disabled');
+
     const lines: string[] = [
-        '# EmmyLua Server Diagnostics',
+        `# ${vscode.l10n.t('EmmyLua Server Diagnostics')}`,
         '',
-        `**Status:** ${extensionContext.serverStatus.state}`,
-        `**Trusted Workspace:** ${vscode.workspace.isTrusted ? 'yes' : 'no'}`,
-        `**Workspace Folders:** ${workspaceFolders.length || 0}`,
-        `**Active Lua File:** ${activeDocument?.languageId === extensionContext.LANGUAGE_ID ? activeDocument.uri.fsPath : 'none'}`,
-        `**Configuration Scope:** ${describeConfigurationScope(configurationScope)}`,
-        `**Resolved Server Executable:** ${resolveExecutablePath(extensionContext.vscodeContext, configurationManager)}`,
-        `**Configured Debug Port:** ${configurationManager.getDebugPort() ?? 'disabled'}`,
-        `**Configured Global Config:** ${configurationManager.getGlobalConfigPath()?.trim() || 'none'}`,
-        `**Configured Start Parameters:** ${formatStartParameters(configurationManager.getStartParameters())}`,
+        `**${vscode.l10n.t('Status:')}** ${extensionContext.serverStatus.state}`,
+        `**${vscode.l10n.t('Trusted Workspace:')}** ${vscode.workspace.isTrusted ? yes : no}`,
+        `**${vscode.l10n.t('Workspace Folders:')}** ${workspaceFolders.length || 0}`,
+        `**${vscode.l10n.t('Active Lua File:')}** ${activeDocument?.languageId === extensionContext.LANGUAGE_ID ? activeDocument.uri.fsPath : none}`,
+        `**${vscode.l10n.t('Configuration Scope:')}** ${describeConfigurationScope(configurationScope)}`,
+        `**${vscode.l10n.t('Resolved Server Executable:')}** ${resolveExecutablePath(extensionContext.vscodeContext, configurationManager)}`,
+        `**${vscode.l10n.t('Configured Debug Port:')}** ${configurationManager.getDebugPort() ?? disabled}`,
+        `**${vscode.l10n.t('Configured Global Config:')}** ${configurationManager.getGlobalConfigPath()?.trim() || none}`,
+        `**${vscode.l10n.t('Configured Start Parameters:')}** ${formatStartParameters(configurationManager.getStartParameters())}`,
         '',
-        '## Quick Actions',
+        `## ${vscode.l10n.t('Quick Actions')}`,
         '',
-        '- Run command: `EmmyLua: Restart Lua Server`',
-        '- Run command: `EmmyLua: Stop EmmyLua Language Server`',
-        '- Open the EmmyLua output channel from the server menu',
+        `- ${vscode.l10n.t('Run command: {0}', '`EmmyLua: Restart Lua Server`')}`,
+        `- ${vscode.l10n.t('Run command: {0}', '`EmmyLua: Stop EmmyLua Language Server`')}`,
+        `- ${vscode.l10n.t('Open the EmmyLua output channel from the server menu')}`,
     ];
 
     if (extensionContext.serverStatus.message) {
-        lines.push('', '## Message', '', extensionContext.serverStatus.message);
+        lines.push('', `## ${vscode.l10n.t('Message')}`, '', extensionContext.serverStatus.message);
     }
 
     if (extensionContext.serverStatus.details) {
-        lines.push('', '## Details', '', '```text', extensionContext.serverStatus.details, '```');
+        lines.push('', `## ${vscode.l10n.t('Details')}`, '', '```text', extensionContext.serverStatus.details, '```');
     }
 
     if (activeWorkspaceFolder) {
-        lines.push('', '## Active Workspace Folder', '', activeWorkspaceFolder.uri.fsPath);
+        lines.push('', `## ${vscode.l10n.t('Active Workspace Folder')}`, '', activeWorkspaceFolder.uri.fsPath);
     }
 
     if (workspaceFolders.length > 0) {
-        lines.push('', '## Workspace Folders', '');
+        lines.push('', `## ${vscode.l10n.t('Workspace Folders')}`, '');
         for (const folder of workspaceFolders) {
             lines.push(`- ${folder.name}: ${folder.uri.fsPath}`);
         }
@@ -402,7 +407,7 @@ async function showServerDiagnostics(): Promise<void> {
 
 function describeConfigurationScope(scope: vscode.ConfigurationScope | undefined): string {
     if (!scope) {
-        return 'global/default';
+        return vscode.l10n.t('global/default');
     }
 
     if (scope instanceof vscode.Uri) {
@@ -414,12 +419,12 @@ function describeConfigurationScope(scope: vscode.ConfigurationScope | undefined
         return workspaceFolder.uri.fsPath;
     }
 
-    return 'language override';
+    return vscode.l10n.t('language override');
 }
 
 function formatStartParameters(parameters: string[]): string {
     if (parameters.length === 0) {
-        return 'none';
+        return vscode.l10n.t('none');
     }
 
     return parameters.join(' ');
@@ -441,10 +446,10 @@ function showReferences(uri: string, pos: IServerPosition, locations: IServerLoc
 async function stopServer(): Promise<void> {
     try {
         await extensionContext.stopServer();
-        vscode.window.showInformationMessage('EmmyLua language server stopped');
+        vscode.window.showInformationMessage(vscode.l10n.t('EmmyLua language server stopped'));
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        vscode.window.showErrorMessage(`Failed to stop server: ${errorMessage}`);
+        vscode.window.showErrorMessage(vscode.l10n.t('Failed to stop server: {0}', errorMessage));
     }
 }
 
@@ -457,24 +462,24 @@ async function showSyntaxTree(): Promise<void> {
     const editor = vscode.window.activeTextEditor;
 
     if (!editor) {
-        vscode.window.showWarningMessage('No active editor');
+        vscode.window.showWarningMessage(vscode.l10n.t('No active editor'));
         return;
     }
 
     const document = editor.document;
 
     if (document.languageId !== extensionContext.LANGUAGE_ID) {
-        vscode.window.showWarningMessage('Current file is not a Lua file');
+        vscode.window.showWarningMessage(vscode.l10n.t('Current file is not a Lua file'));
         return;
     }
 
     if (!extensionContext.client) {
-        vscode.window.showWarningMessage('Language server is not running');
+        vscode.window.showWarningMessage(vscode.l10n.t('Language server is not running'));
         return;
     }
 
     if (!syntaxTreeManager) {
-        vscode.window.showErrorMessage('Syntax tree manager is not initialized');
+        vscode.window.showErrorMessage(vscode.l10n.t('Syntax tree manager is not initialized'));
         return;
     }
 

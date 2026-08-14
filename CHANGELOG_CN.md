@@ -1,5 +1,26 @@
 # 🚀 Change Log
 
+## [0.9.41] - 2026-8-14
+
+### 新增
+
+- **emmylua_doc_cli 支持导出 HTML**：新增了以 HTML 格式导出文档的支持。例如，`neovim/runtime/lua` 目录已被导出为 HTML 文档，参见：https://cppcxy.github.io/nvim_runtime_lua_doc/
+
+### 变更
+
+- **移除 LuaJIT-Ext**：现在 LuaJIT-Ext 已合并到 LuaJIT 中，旧的 LuaJIT 语法已重命名为 LuaJIT2。
+- **移除 @schema**：移除了对 `@schema` 注解的支持，该注解曾用于为 json-schema 定义的 API 添加补全和悬停提示。移除的主要原因是放弃对 reqwest 库的依赖——该库占用了大量的编译时间。
+- **增强 luafmt 检查功能**：`luafmt --check` 现在会输出类似 git-diff 的差异并报告检查摘要。
+
+### 修复
+
+- **修复若干格式化边界情况**：修复了若干格式化边界情况，包括：
+  1. 格式化会移除 `safe-navigation` 表达式的问题。
+  2. 格式化会移除参数注解中 `...` 的问题。
+  3. 修复了复合赋值对齐格式的问题。
+- **修复若干加载卡顿问题**：修复了语言服务器在加载工作区时出现的一些卡顿问题，并提升了大工作区的加载性能。
+- **修复 math.randomseed**：修复了 `math.randomseed` 未对所有版本生效的问题。
+
 ## [0.9.40] - 2026-7-10
 
 ### ✨ 新增

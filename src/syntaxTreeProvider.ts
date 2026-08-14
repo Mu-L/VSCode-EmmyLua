@@ -60,7 +60,7 @@ export class SyntaxTreeProvider implements vscode.TextDocumentContentProvider {
     ): Promise<string | undefined> {
         const sourceUri = this.parseSourceUri(uri);
         if (!sourceUri) {
-            return 'Error: Invalid syntax tree URI';
+            return vscode.l10n.t('Error: Invalid syntax tree URI');
         }
 
         // Check cache first
@@ -82,7 +82,7 @@ export class SyntaxTreeProvider implements vscode.TextDocumentContentProvider {
         const client = await this.getLanguageClient();
         
         if (!client) {
-            return '// Language server is not running\n// Please ensure EmmyLua language server is started';
+            return vscode.l10n.t('// Language server is not running\n// Please ensure EmmyLua language server is started');
         }
 
         try {
@@ -97,7 +97,7 @@ export class SyntaxTreeProvider implements vscode.TextDocumentContentProvider {
             );
 
             if (!result || !result.content) {
-                return '// Failed to get syntax tree\n// The language server did not return any data';
+                return vscode.l10n.t('// Failed to get syntax tree\n// The language server did not return any data');
             }
 
             // Cache the result
@@ -108,7 +108,7 @@ export class SyntaxTreeProvider implements vscode.TextDocumentContentProvider {
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             console.error('Failed to generate syntax tree:', error);
-            return `// Error generating syntax tree\n// ${errorMessage}`;
+            return vscode.l10n.t('// Error generating syntax tree\n// {0}', errorMessage);
         }
     }
 
@@ -240,7 +240,7 @@ export class SyntaxTreeManager implements vscode.Disposable {
             });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            vscode.window.showErrorMessage(`Failed to show syntax tree: ${errorMessage}`);
+            vscode.window.showErrorMessage(vscode.l10n.t('Failed to show syntax tree: {0}', errorMessage));
         }
     }
 
@@ -249,8 +249,10 @@ export class SyntaxTreeManager implements vscode.Disposable {
      */
     toggleAutoUpdate(): void {
         this.autoUpdateEnabled = !this.autoUpdateEnabled;
-        const status = this.autoUpdateEnabled ? 'enabled' : 'disabled';
-        vscode.window.showInformationMessage(`Syntax tree auto-update ${status}`);
+        const status = this.autoUpdateEnabled
+            ? vscode.l10n.t('enabled')
+            : vscode.l10n.t('disabled');
+        vscode.window.showInformationMessage(vscode.l10n.t('Syntax tree auto-update {0}', status));
     }
 
     /**
